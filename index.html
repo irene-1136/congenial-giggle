@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html{color-scheme:dark}body{margin:0}[hidden]{display:none!important}</style>
+<title>差不多先生傳 尋認真</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@600;900&display=swap">
+<style>
+/* 版面：全畫面 3D 民初老街為主景，介面是墨藍底、泥金細線，硃紅只用在印章與重點。刻意只做單一深色外觀 */
+:root{--ink:#111a22;--panel:rgba(17,27,36,.9);--card:#1b2a36;--line:rgba(214,176,102,.5);--paper:#f4ecdc;--mute:#b7bfbc;--red:#d9654c;--gold:#e0bb6c;--jade:#68b394;
+--fd:"Noto Serif TC","Songti TC",serif;--fb:"LXGW WenKai TC","Kaiti TC","DFKai-SB",serif;color-scheme:dark}
+html,body{height:100%;overflow:hidden}
+body{background:var(--ink);color:var(--paper);font:16px/1.6 var(--fb);user-select:none;-webkit-user-select:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overscroll-behavior:none}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+button,input{font:inherit;color:inherit}button{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:10px;padding:10px 16px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}button:disabled{opacity:.35;cursor:default}
+.main{background:var(--red);border-color:var(--red);color:#1d0b07;font-weight:700}
+#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;z-index:5;max-width:62vw}
+#hAct{font:900 12px var(--fd);letter-spacing:.2em;color:var(--gold)}#hLv{font-size:18px;font-weight:700}
+#bar{width:140px;height:8px;background:#000;border-radius:4px;overflow:hidden}#bar i{display:block;height:100%;background:var(--red);transition:width .3s}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#side{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));display:grid;gap:6px;z-index:5}#side button{background:var(--panel);padding:6px 12px}
+#signs{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.sign{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:900 15px var(--fd);letter-spacing:.2em;background:#7e2f22;color:#ffeeca;border:1px solid var(--gold);padding:3px 8px 3px 12px;border-radius:4px}
+#controls{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));display:flex;justify-content:space-between;align-items:end;gap:10px;z-index:5;pointer-events:none}
+#pad{display:grid;grid-template-columns:repeat(3,48px);gap:4px;pointer-events:auto}#pad button{height:46px;padding:0;background:var(--panel);touch-action:none}
+#act{display:grid;gap:8px;justify-items:end;pointer-events:auto}#act button:not(.main){background:var(--panel)}
+#quest{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 12px;text-align:right;font-size:15px}
+.ov{position:fixed;inset:0;z-index:10;display:flex;overflow:auto;padding:20px 16px;background:rgba(7,12,17,.6)}
+.box{margin:auto;width:min(700px,100%);min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:12px}
+.ov.low{align-items:flex-end}.ov.low .box{margin:0 auto}
+h1{font:900 clamp(38px,11vw,70px)/1.2 var(--fd);margin:0;text-align:center;letter-spacing:.08em;color:#ffefd0}
+h2{font:900 24px var(--fd);margin:0;color:var(--gold);letter-spacing:.1em}p{margin:0}.center{text-align:center;justify-items:center}.center .row{justify-content:center}
+.seal{background:var(--red);color:#fff3e4;font:900 14px var(--fd);letter-spacing:.3em;padding:3px 8px 3px 13px;border-radius:4px}
+.note{font-size:13px;color:var(--mute)}
+blockquote{margin:0;border-left:3px solid var(--red);padding:6px 12px;font-size:19px;line-height:1.85;background:rgba(217,101,76,.12)}
+.tag{font-size:13px;border:1px solid var(--jade);color:#a8e0c8;border-radius:99px;padding:1px 10px}
+#q{font-size:20px;font-weight:700}
+.opt{display:block;width:100%;text-align:left;font-size:18px}.opt.sel{border-color:var(--gold);background:rgba(224,187,108,.2)}.opt.good{border-color:var(--jade);background:rgba(104,179,148,.3)}.opt.bad{border-color:var(--red);background:rgba(217,101,76,.25)}
+.fb{padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
+#body{display:grid;gap:8px}.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px;align-items:center}
+select{font:inherit;padding:10px;border-radius:8px;background:#101a23;color:var(--paper);border:1px solid var(--line);min-width:0;width:100%}
+#cert{width:100%;border-radius:8px;-webkit-touch-callout:default}
+#name{background:#101a23;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;width:min(300px,100%)}
+</style>
+<canvas id="gl" aria-label="民初老街 3D 場景"></canvas>
+<div id="signs"></div>
+<div id="hud" hidden><div id="hAct"></div><div id="hLv"></div><div class="row">認真值<div id="bar"><i></i></div><span id="hp"></span></div><div id="coin"></div></div>
+<div id="side" hidden><button id="bMap">選關</button><button id="bHelp">說明</button></div>
+<div id="controls" hidden>
+ <div id="pad"><span></span><button data-k="f" aria-label="前進">▲</button><span></span><button data-k="l" aria-label="左轉">◀</button><button data-k="b" aria-label="後退">▼</button><button data-k="r" aria-label="右轉">▶</button></div>
+ <div id="act"><div id="quest"></div><button id="bAuto">帶我過去</button><button id="bTalk" class="main" hidden>上前看看（E）</button></div>
+</div>
+<div id="ov" class="ov"></div>
+<script>
+const TYPES=['提取訊息','直接推論','詮釋整合','比較評估'];
+// c:[類型,題目,[選項,第一個為正解],解析]  o:排序(依正確順序)  m:配對
+const c=(t,q,a,e)=>({t,q,a,e}),o=(t,q,s,e)=>({t,q,order:s,e}),m=(t,q,p,e)=>({t,q,match:p,e});
+const L=[
+{act:'第一幕　其人其事',name:'街口識人',sign:'街口',who:'說書人',say:'客官，你知道中國最有名的人是誰嗎？提起此人，人人皆曉，處處聞名。',
+text:'他姓差，名不多，是各省各縣各村人氏。……他有一雙眼睛，但看的不很分明；有兩隻耳朵，但聽的不很分明；……他常常說：「凡事只要差不多，就好了。何必太精明呢？」',
+qs:[c(0,'差不多先生常常說的話，重點是什麼？',['凡事只要差不多就好了','凡事都要問個清楚','做事一定要比別人快','說話一定要小心'],'原文：「凡事只要差不多，就好了。何必太精明呢？」'),
+c(1,'說他「是各省各縣各村人氏」，可以推論出什麼？',['像他這樣的人到處都有','他搬過很多次家','他走遍全國做生意','沒有人認識他'],'一個人不可能同時是各地人。作者暗示這種人遍布各地。'),
+c(2,'作者描寫他眼睛、耳朵都「不很分明」，主要是為了表現什麼？',['他做人做事馬虎、不求清楚','他年紀很大，身體衰退','他需要找大夫治眼睛和耳朵','他很謙虛，不愛表現'],'外貌描寫扣住性格：看、聽、想都不求清楚。')]},
+{act:'第一幕　其人其事',name:'紅糖白糖',sign:'雜貨鋪',who:'媽媽',say:'我叫你去買紅糖，你手上提的是什麼？',
+text:'他小的時候，他媽叫他去買紅糖，他買了白糖回來。他媽罵他，他搖搖頭說：「紅糖白糖不是差不多嗎？」',
+qs:[c(0,'媽媽要他買什麼？他買回什麼？',['要買紅糖，買回白糖','要買白糖，買回紅糖','要買紅糖，買回黑糖','要買白糖，買回冰糖'],'原文：「他媽叫他去買紅糖，他買了白糖回來。」'),
+c(1,'挨罵後他「搖搖頭」回話，可見他怎麼想？',['不覺得自己有錯','非常後悔，想去換貨','擔心媽媽不再讓他出門','懷疑是店家拿錯了'],'他反問「不是差不多嗎」，表示他認為媽媽不必計較。'),
+c(3,'下面哪一件事和「買錯糖」的態度最像？',['抄錯作業頁數，卻說「反正都是數學」','不確定集合時間，於是再問一次老師','東西賣完了，打電話問家人能不能換別的','算完數學後，從頭檢查一遍'],'相同點是弄錯了還認為差別不重要。')]},
+{act:'第二幕　求學與謀生',name:'學堂問答',sign:'學堂',who:'先生',say:'來，我考你一題地理。',
+text:'有一天，先生問他：「直隸省的西邊是哪一省？」他說是陝西。先生說：「錯了。是山西，不是陝西。」他說：「陝西同山西，不是差不多嗎？」',
+qs:[c(0,'直隸省西邊的正確答案是哪一省？',['山西','陝西','山東','江西'],'先生說：「是山西，不是陝西。」'),
+c(1,'他為什麼覺得陝西和山西「差不多」？根據文章最合理的推論是？',['兩個名稱聽起來相近，他不想分辨','他兩省都住過，覺得風景一樣','兩省在地圖上是同一個地方','先生以前這樣教過他'],'「陝」「山」讀音相近。文章沒有提到他去過或學錯。'),
+c(2,'把學堂答錯和小時候買錯糖兩件事合起來看，最能發現什麼？',['別人指出錯誤後，他仍認為不必分清楚','他長大後已經改掉粗心的毛病','他只有在家裡才會弄錯事情','他每次出錯都是別人害的'],'兩次都是被糾正後反問「不是差不多嗎」，習慣從小延續到求學。')]},
+{act:'第二幕　求學與謀生',name:'錢鋪帳房',sign:'錢鋪',who:'掌櫃',say:'這本帳是誰記的？數目全亂了！',
+text:'後來他在一個錢鋪裏做夥計；他也會寫，也會算，只是總不會精細。十字常常寫成千字，千字常常寫成十字。掌櫃的生氣了，常常罵他。他只是笑嘻嘻地賠小心道：「千字比十字只多一小撇，不是差不多嗎？」',
+qs:[c(0,'他在錢鋪裏做什麼工作？',['夥計','掌櫃','先生','大夫'],'原文：「他在一個錢鋪裏做夥計。」'),
+c(1,'「他也會寫，也會算」說明他出錯的主要原因是什麼？',['做事不精細','完全不識字','從沒學過算術','掌櫃沒有給他紙筆'],'他有能力，問題在「總不會精細」。'),
+c(3,'他說「只多一小撇」。哪個評論最有道理？',['筆畫只差一點，數目卻差了一百倍，在錢鋪會造成大損失','有道理，因為字形的確很像','有道理，因為他道歉時面帶笑容','沒道理，因為「千」比「十」多的是兩撇'],'判斷差別大不大，要看造成的後果。十的一百倍是一千。')]},
+{act:'第三幕　誤點',name:'趕赴上海',sign:'火車站',who:'站務員',say:'往上海的車？剛剛開走了。',
+text:'有一天，他為了一件要緊的事，要搭火車到上海去。他從從容容地走到火車站，遲了兩分鐘，火車已開走了。他白瞪著眼，望著遠遠的火車上的煤煙，搖搖頭道：「只好明天再走了，今天走同明天走，也還差不多。可是火車公司未免太認真了。八點三十分開，同八點三十二分開，不是差不多嗎？」',
+qs:[c(0,'他遲到了多久？',['兩分鐘','三十分鐘','三十二分鐘','一整天'],'原文：「遲了兩分鐘。」八點三十二分是他舉的時間。'),
+o(2,'依照事情發生的先後排列。',['為了要緊的事，要搭車去上海','從從容容地走到火車站','發現火車已經開走','望著煤煙，埋怨火車公司太認真'],'起因、經過、結果、反應。'),
+c(2,'事情「要緊」，他卻「從從容容」。這樣寫有什麼效果？',['形成對比，突顯他連要緊事也不認真','表示他早有周全的準備','說明那件事其實已經辦完','讚美他遇事冷靜可靠'],'前後的反差帶出諷刺。他最後誤了車，可見並非準備周全。')]},
+{act:'第四幕　一病之後',name:'請錯大夫',sign:'病榻',who:'家人',say:'東街的汪大夫一時找不著，這可怎麼辦？',
+text:'有一天，他忽然得了急病，趕快叫家人去請東街的汪醫生。那家人急急忙忙跑去，一時尋不著東街汪大夫，卻把西街的牛醫王大夫請來了。差不多先生病在床上，知道尋錯了人；但病急了，……心裏想道：「好在王大夫同汪大夫也差不多，讓他試試看罷。」',
+qs:[c(0,'被請來的王大夫是什麼人？',['西街的牛醫','東街的名醫','錢鋪的掌櫃','學堂的先生'],'原文：「西街的牛醫王大夫。」'),
+c(1,'差不多先生知不知道找錯了人？',['知道，但仍讓王大夫試試','不知道，以為來的是汪大夫','知道，並立刻請王大夫離開','不知道，因為家人騙了他'],'原文：「知道尋錯了人」，卻說「讓他試試看罷」。'),
+c(2,'這次的「差不多」和前幾次最大的不同是什麼？',['代價從小錯變成關係性命','這次他終於認真分辨了','這次出錯的只有別人','這次沒有任何人受影響'],'從買糖、答題、記帳、誤車到看病，後果越來越嚴重。')]},
+{act:'第四幕　一病之後',name:'臨終一語',sign:'內室',who:'差不多先生',say:'活人同死人也差……差……差不多……',
+text:'這位牛醫王大夫走近床前，用醫牛的法子給差不多先生治病。不上一點鐘，差不多先生就一命嗚呼了。差不多先生差不多要死的時候，一口氣斷斷續續地說道：「活人同死人也差……差……差不多，……凡事只要……差……差……不多……就……好了，……何……何……必……太……太認真呢？」',
+qs:[c(0,'王大夫用什麼方法治病？',['醫牛的法子','汪大夫的藥方','祖傳的針灸','請人祈福'],'原文：「用醫牛的法子給差不多先生治病。」'),
+c(1,'從臨終的話可以看出他怎樣？',['到死都沒有改變想法','終於明白認真的重要','責怪家人請錯大夫','希望別人不要學他'],'他仍重複「何必太認真呢」。'),
+o(2,'依文章順序排列他「差不多」的事件。',['把紅糖買成白糖','把山西答成陝西','把十字、千字寫混','晚到兩分鐘，誤了火車','讓牛醫替自己治病'],'作者按人生歷程安排，後果一步步加重。')]},
+{act:'尾聲　身後之名',name:'圓通大師',sign:'紀念堂',who:'街坊',say:'這位先生樣樣看得破、想得通，真是有德行的人！',
+text:'他死後，大家都很稱讚差不多先生樣樣事情看得破，想得通；……於是大家給他取個死後的法號，叫他做圓通大師。他的名譽越傳越遠，越久越大。無數無數的人都學他的榜樣。於是人人都成了一個差不多先生。——然而中國從此就成為一個懶人國了。',
+qs:[c(3,'大家稱讚他，作者是否真的認同？',['不認同，結尾「懶人國」顯示他用反話諷刺','認同，因為文中寫了很多稱讚','認同，因為大家都學他的榜樣','沒有任何線索可以判斷'],'表面稱讚、實際批評，最後一句點明作者態度。'),
+c(3,'作者讓故事人物受到眾人稱讚，這種寫法最主要的效果是？',['讓讀者看出社會把缺點當美德的荒謬','證明他的做法是成功的','讓故事變成一般的名人傳記','說明稱讚別人是不好的'],'稱讚越熱烈，和他的實際下場對比越強，諷刺越深。'),
+c(3,'哪一種做法最能回應作者的提醒，又不至於事事鑽牛角尖？',['分清哪些差別會影響結果，重要的地方仔細查證','任何事都不做決定，直到完全沒有風險','只要別人沒發現，小錯就不用改','全部交給別人檢查，自己不必留意'],'作者批評的是敷衍。認真是負起查證的責任。')]}];
+
+const $=s=>document.querySelector(s),ov=$('#ov');
+const KEY='chabuduo-v1';let S={i:0,hp:100,coin:0,first:{},done:false},saved=null;
+try{saved=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const total=L.reduce((n,l)=>n+l.qs.length,0);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const stationPos=i=>[i%2?3.6:-3.6,-10-i*12];
+let P={x:0,z:2,a:0},auto=false,keys={};
+
+function show(html,low){ov.className='ov'+(low?' low':'');ov.innerHTML='<div class="box">'+html+'</div>';ov.hidden=false;auto=false;keys={}}
+function close(){ov.hidden=true;hud()}
+function hud(){const l=L[S.i];$('#hAct').textContent=l.act;$('#hLv').textContent=`第 ${S.i+1} 關　${l.name}`;$('#hp').textContent=S.hp;$('#bar i').style.width=S.hp+'%';$('#coin').textContent=`銅錢 ${S.coin}／${total}`}
+function startAt(i,fresh){if(fresh)S={i:0,hp:100,coin:0,first:{},done:false};S.i=i;if(S.hp<=0)S.hp=100;const z=i?stationPos(i-1)[1]:2;P={x:0,z,a:0};['#hud','#side','#controls'].forEach(s=>$(s).hidden=false);save();close()}
+function title(){show(`<div class="center" style="display:grid;gap:14px"><span class="seal">胡適原著</span><h1>差不多先生傳</h1><p>走進民初老街，親眼看看他的一生</p><p class="note">第一人稱沉浸式閱讀・四幕與尾聲・${L.length} 關・${total} 道 PIRLS 閱讀理解挑戰</p><div class="row"><button class="main" id="go">開始閱讀</button>${saved&&!saved.done&&saved.i?'<button id="cont">繼續上次進度</button>':''}</div><p class="note">原文為節錄，用字與標點請以課本版本為準。</p></div>`);
+$('#go').onclick=()=>{startAt(0,true);help()};if($('#cont'))$('#cont').onclick=()=>{S=saved;startAt(S.i)}}
+function help(){show(`<h2>怎麼玩</h2><p>電腦：用 W、A、S、D 或方向鍵走動，拖曳畫面轉頭，走近招牌後按 E。<br>手機：用左下方向鍵走動，滑動畫面轉頭。<br>不想自己走，按「帶我過去」。</p><p>先讀原文，再回答問題。第一次就答對可得一枚銅錢；答錯扣 10 點認真值，可以再試。認真值歸零時，本關重來。</p><button class="main" id="ok">知道了</button>`);$('#ok').onclick=close}
+function map(){show(`<h2>選關</h2>${L.map((l,i)=>`<button data-i="${i}">第 ${i+1} 關　${l.name}</button>`).join('')}<p class="note">選關可自由練習。</p><button id="ok">返回</button>`);ov.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>startAt(+b.dataset.i));$('#ok').onclick=close}
+function talk(){const l=L[S.i];show(`<h2>${l.who}</h2><p style="font-size:19px">「${l.say}」</p><div class="note">課文節錄</div><blockquote>${l.text}</blockquote><div class="row"><button class="main" id="ok">接受挑戰</button><button id="no">稍後再來</button></div>`,true);$('#ok').onclick=()=>ask(0);$('#no').onclick=close}
+function ask(n){const l=L[S.i],q=l.qs[n],id=S.i+'-'+n;let tries=0,sel=null,seq=[];
+show(`<div class="row"><span class="tag">${TYPES[q.t]}</span><span class="note">${l.name}　${n+1}／${l.qs.length}</span></div><div id="q">${q.q}</div><details><summary>回頭看課文</summary><blockquote>${l.text}</blockquote></details><div id="body"></div><div id="msg" aria-live="polite"></div><div class="row"><button class="main" id="send" disabled>送出答案</button><button id="redo" hidden>重新排列</button></div>`);
+const body=$('#body'),send=$('#send');
+if(q.a){shuffle(q.a).forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{sel=b;body.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===b));send.disabled=false};body.append(b)})}
+else if(q.order){let items=shuffle(q.order);if(items.join()===q.order.join())items.reverse();const redo=$('#redo');redo.hidden=false;body.innerHTML='<p class="note">依先後順序點選。</p>';
+ items.forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.dataset.v=t;b.onclick=()=>{if(seq.includes(t))return;seq.push(t);b.textContent=seq.length+'．'+t;b.classList.add('sel');send.disabled=seq.length<items.length};body.append(b)});
+ redo.onclick=()=>{seq=[];send.disabled=true;body.querySelectorAll('.opt').forEach(b=>{b.textContent=b.dataset.v;b.classList.remove('sel')})}}
+else{const r=shuffle(q.match.map(p=>p[1]));body.innerHTML=q.match.map((p,i)=>`<div class="pair"><label for="m${i}">${p[0]}</label><select id="m${i}"><option value="">請選擇</option>${r.map(v=>`<option>${v}</option>`).join('')}</select></div>`).join('');body.onchange=()=>send.disabled=[...body.querySelectorAll('select')].some(s=>!s.value)}
+send.onclick=()=>{const ok=q.a?sel.textContent===q.a[0]:q.order?seq.join()===q.order.join():q.match.every((p,i)=>$('#m'+i).value===p[1]);
+ if(ok){if(!tries&&!(id in S.first)){S.first[id]=true;S.coin++}else if(!(id in S.first))S.first[id]=false;if(sel)sel.className='opt good';body.querySelectorAll('button,select').forEach(x=>x.disabled=true);$('#redo').hidden=true;
+  $('#msg').innerHTML=`<div class="fb"><b>答對了。</b>${q.e}</div>`;send.textContent=n+1<l.qs.length?'下一題':'完成本關';send.onclick=()=>n+1<l.qs.length?ask(n+1):clear();save();hud()}
+ else{tries++;S.first[id]??=false;S.hp=Math.max(0,S.hp-10);save();hud();if(!S.hp)return fail();
+  $('#msg').innerHTML=`<div class="fb">還差一點，這裡可不能「差不多」。提示：${tries>1?q.e:'打開課文，找找相關的句子。'}</div>`;if(sel){sel.className='opt bad';sel.disabled=true;sel=null;send.disabled=true}else if(q.order)$('#redo').click()}}}
+function fail(){show(`<h2>認真值用完了</h2><p>回去把課文讀仔細，再挑戰一次。</p><button class="main" id="ok">本關重來</button>`);$('#ok').onclick=()=>{S.hp=100;save();hud();talk()}}
+function clear(){const l=L[S.i],last=S.i===L.length-1;show(`<h2>${l.name}　過關</h2><p>認真值恢復 15 點。</p><button class="main" id="ok">${last?'查看結果':'前往下一站'}</button>`);S.hp=Math.min(100,S.hp+15);$('#ok').onclick=()=>{if(last)finish();else{S.i++;save();close()}}}
+function finish(){S.done=true;save();const seen=Object.keys(S.first).length;
+const stat=TYPES.map((t,k)=>{let a=0,b=0;L.forEach((l,i)=>l.qs.forEach((q,n)=>{if(q.t===k){b++;if(S.first[i+'-'+n])a++}}));return `<div>${t}：${a}／${b}</div>`}).join('');
+show(`<h2>閱讀完成</h2><p>第一次就答對 ${S.coin}／${total} 題${seen<total?`（本次作答 ${seen} 題）`:''}</p><div>${stat}</div><p><b>想一想：</b>生活中哪些事可以「差不多」，哪些事不行？你怎麼分辨？</p><label for="name">輸入姓名，製作閱讀紀念卡</label><input id="name" maxlength="12"><div class="row"><button class="main" id="mk">製作紀念卡</button><button id="again">重新閱讀</button></div><img id="cert" alt="閱讀紀念卡" hidden>`);
+$('#again').onclick=()=>startAt(0,true);$('#mk').onclick=()=>{const v=document.createElement('canvas');v.width=1200;v.height=800;const g=v.getContext('2d');g.fillStyle='#f4ecdc';g.fillRect(0,0,1200,800);g.strokeStyle='#9b3b2a';g.lineWidth=10;g.strokeRect(36,36,1128,728);g.textAlign='center';g.fillStyle='#1b2a36';const t=(s,y,px)=>{g.font=`700 ${px}px "LXGW WenKai TC","Noto Serif TC",serif`;g.fillText(s,600,y)};t('閱讀紀念卡',180,72);t($('#name').value.trim()||'認真的讀者',330,64);t('讀完胡適〈差不多先生傳〉沉浸式閱讀',440,42);t(`第一次就答對 ${S.coin}／${total} 題`,530,42);g.fillStyle='#9b3b2a';t('凡事認真，不只差不多',660,48);const im=$('#cert');im.src=v.toDataURL();im.hidden=false;if(!$('#hint'))im.insertAdjacentHTML('afterend','<p class="note" id="hint">手機長按圖片、電腦按右鍵即可儲存；也可以直接截圖。</p>')}}
+
+/* ---- 小型 WebGL 場景 ---- */
+const cv=$('#gl'),gl=cv.getContext('webgl');const V=[];
+const rgb=h=>[(h>>16&255)/255,(h>>8&255)/255,(h&255)/255];
+function quad(p,col,sh){const k=rgb(col).map(v=>v*sh);[0,1,2,0,2,3].forEach(i=>V.push(...p[i],...k))}
+function box(x,y,z,w,h,d,col){const a=x-w/2,b=x+w/2,e=y,f=y+h,n=z+d/2,s=z-d/2;
+quad([[a,e,n],[b,e,n],[b,f,n],[a,f,n]],col,.85);quad([[b,e,s],[a,e,s],[a,f,s],[b,f,s]],col,.65);quad([[a,e,s],[a,e,n],[a,f,n],[a,f,s]],col,.75);quad([[b,e,n],[b,e,s],[b,f,s],[b,f,n]],col,.75);quad([[a,f,n],[b,f,n],[b,f,s],[a,f,s]],col,1.05)}
+function person(x,z,robe){box(x,0,z,.55,1.15,.4,robe);box(x,1.15,z,.4,.4,.38,0xe2b995);box(x,1.55,z,.46,.12,.44,0x1c1c20);for(const e of[-.09,.09])box(x+e,1.36,z+.2,.06,.06,.02,0x1c1c20);box(x,1.23,z+.2,.14,.03,.02,0x7e3b2d);box(x-.38,.55,z,.14,.6,.18,robe);box(x+.38,.55,z,.14,.6,.18,robe)}
+box(0,-.2,-52,40,.2,130,0x6f665a);for(let z=3;z>-112;z-=2.2)for(let x=-2;x<=2;x+=1.35)box(x+((z*10|0)%2?.3:0),0,z,1.2,.03,2,0x8d8374);
+for(let i=0,z=4;z>-114;z-=6,i++)for(const s of[-1,1]){const h=3.2+((i*7+s+9)%3)*.7,wall=[0xb9a98c,0x8f9a96,0xa88672][(i+(s>0))%3];
+box(s*8,0,z,4,h,5.4,wall);box(s*8,h,z,4.8,.35,5.8,0x2f3b44);box(s*8,h+.35,z,3,.3,5.8,0x263139);box(s*5.96,0,z,.1,2.1,1.3,0x4a2e22);for(const dz of[-1.8,1.8])box(s*5.96,1.2,z+dz,.1,1,.9,0xe6c47a);
+if(i%2)box(s*5.4,2.5,z+2.6,.45,.6,.45,0xc8432f)}
+L.forEach((l,i)=>{const[x,z]=stationPos(i),s=Math.sign(x);person(x,z,[0x2f4d63,0x7a4a63,0x39463c,0x6b4a2c,0x23364a,0x5d6470,0x8a8678,0x7e3b2d][i]);
+ box(x+s*1.3,0,z,1,.8,2,0x5c3b28);for(const dz of[-1.5,1.5])box(x+s*.8,0,z+dz,.15,2.8,.15,0x7e2f22);box(x+s*.8,2.8,z,.2,.18,3.2,0x7e2f22);
+ if(i==1){box(x+s*1.3,.8,z-.4,.4,.35,.4,0xa8392a);box(x+s*1.3,.8,z+.4,.4,.35,.4,0xf5f2e8)}
+ if(i==4){for(const dx of[-.45,.45])box(dx+x+s*1.9,.05,z,.1,.1,9,0x25282c);box(x+s*1.9,.15,z-4,1.6,1.8,2.6,0x1f2428);box(x+s*1.9,1.95,z-4.6,.4,.8,.4,0x111316)}
+ if(i==5||i==6)box(x+s*.2,0,z-1.5,1,.5,2,0xd8cdb8);
+ if(i==5)person(x,z+1.2,0x4b3a2a)});
+box(0,0,-110,8,5,1,0x7e2f22);box(0,5,-110,10,.5,2,0x263139);
+let prog,uni;
+if(gl){const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o};prog=gl.createProgram();
+gl.attachShader(prog,sh(35633,'attribute vec3 p,c;uniform vec4 cam;uniform vec2 pr;varying vec3 v;varying float f;void main(){vec3 d=p-cam.xyz;float s=sin(cam.w),k=cos(cam.w);vec3 e=vec3(d.x*k-d.z*s,d.y,d.x*s+d.z*k);gl_Position=vec4(e.x*pr.x,e.y*pr.y,-e.z*1.002-.2,-e.z);v=c;f=clamp((length(d)-12.)/40.,0.,1.);}'));
+gl.attachShader(prog,sh(35632,'precision mediump float;varying vec3 v;varying float f;void main(){gl_FragColor=vec4(mix(v,vec3(.80,.66,.54),f),1.);}'));gl.linkProgram(prog);gl.useProgram(prog);
+gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(V),gl.STATIC_DRAW);
+['p','c'].forEach((n,i)=>{const a=gl.getAttribLocation(prog,n);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,24,i*12)});uni={cam:gl.getUniformLocation(prog,'cam'),pr:gl.getUniformLocation(prog,'pr')};gl.enable(gl.DEPTH_TEST)}
+const signs=L.map(l=>{const e=document.createElement('div');e.className='sign';e.textContent=l.sign;$('#signs').append(e);return e});
+let prev=0;
+function frame(t){const dt=Math.min(.05,(t-prev)/1000||0);prev=t;const[tx,tz]=stationPos(S.i),gx=tx*.4,gz=tz+2.4;
+if(ov.hidden){let mv=(keys.f?1:0)-(keys.b?1:0);P.a+=((keys.l?1:0)-(keys.r?1:0))*1.8*dt;
+ if(auto){const dx=gx-P.x,dz=gz-P.z,d=Math.hypot(dx,dz),face=d>.15?Math.atan2(-dx,-dz):Math.atan2(-(tx-P.x),-(tz-P.z));let da=Math.atan2(Math.sin(face-P.a),Math.cos(face-P.a));P.a+=da*Math.min(1,dt*5);
+  if(d>.15){const st=Math.min(d,7*dt);P.x+=dx/d*st;P.z+=dz/d*st}else if(Math.abs(da)<.05)auto=false}
+ P.x-=Math.sin(P.a)*mv*5*dt;P.z-=Math.cos(P.a)*mv*5*dt;P.x=Math.max(-4,Math.min(4,P.x));P.z=Math.max(-106,Math.min(4,P.z))}
+const dist=Math.hypot(tx-P.x,tz-P.z),near=dist<4.5;$('#bTalk').hidden=!near;$('#bAuto').hidden=near;
+$('#quest').textContent=near?`${L[S.i].who}就在眼前`:`目標：${L[S.i].sign}（${Math.round(dist)} 步）`;
+const dpr=Math.min(2,devicePixelRatio||1),w=cv.clientWidth,h=cv.clientHeight;if(cv.width!==(w*dpr|0)||cv.height!==(h*dpr|0)){cv.width=w*dpr;cv.height=h*dpr}
+const fy=1.5,fx=fy*h/w,px=Math.max(fx,1.05),py=px*w/h;
+if(gl){gl.viewport(0,0,cv.width,cv.height);gl.clearColor(.80,.66,.54,1);gl.clear(16640);gl.uniform4f(uni.cam,P.x,1.7,P.z,P.a);gl.uniform2f(uni.pr,px,py);gl.drawArrays(gl.TRIANGLES,0,V.length/6)}
+signs.forEach((e,i)=>{const[x,z]=stationPos(i),dx=x-P.x,dz=z-P.z,s=Math.sin(P.a),k=Math.cos(P.a),ex=dx*k-dz*s,ez=dx*s+dz*k,d=-ez;
+ e.hidden=!ov.hidden||d<1||d>34;if(!e.hidden){e.style.left=(ex*px/d+1)*w/2+'px';e.style.top=(1-1.5*py/d)*h/2+'px';e.style.opacity=i===S.i?1:.55}});
+requestAnimationFrame(frame)}
+const MAP={w:'f',arrowup:'f',s:'b',arrowdown:'b',a:'l',arrowleft:'l',d:'r',arrowright:'r'};
+addEventListener('keydown',e=>{if(!ov.hidden)return;const k=e.key.toLowerCase();if(MAP[k]){keys[MAP[k]]=true;auto=false;e.preventDefault()}if(k==='e'&&!$('#bTalk').hidden&&!$('#controls').hidden)talk()});
+addEventListener('keyup',e=>{delete keys[MAP[e.key.toLowerCase()]]});addEventListener('blur',()=>keys={});
+document.querySelectorAll('#pad button').forEach(b=>{const k=b.dataset.k,up=()=>delete keys[k];b.onpointerdown=e=>{b.setPointerCapture(e.pointerId);keys[k]=true;auto=false};b.onpointerup=b.onpointercancel=b.onlostpointercapture=up});
+let drag=null;cv.onpointerdown=e=>{drag=e.clientX;cv.setPointerCapture(e.pointerId)};cv.onpointermove=e=>{if(drag!==null){P.a+=(e.clientX-drag)*.005;drag=e.clientX;auto=false}};cv.onpointerup=cv.onpointercancel=()=>drag=null;
+$('#bAuto').onclick=()=>auto=true;$('#bTalk').onclick=talk;$('#bMap').onclick=map;$('#bHelp').onclick=help;
+title();requestAnimationFrame(frame);
+</script>
